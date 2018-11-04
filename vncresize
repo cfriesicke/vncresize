@@ -41,12 +41,13 @@ def xrandr_add_mode(mode_name):
     if xrandr_has_mode(mode_name):
         return
 
-    w = int(mode_name.split("_")[1].split("x")[0])
-    h = int(mode_name.split("_")[1].split("x")[1])
+    width = int(mode_name.split("_")[1].split("x")[0])
+    height = int(mode_name.split("_")[1].split("x")[1])
     rate_hz = 60
-    clock_mhz = w*h*rate_hz/1.0e6
-    xrandr_opt = f"--newmode {mode_name} {clock_mhz} " + f"{w} {w} 0 {w} " + \
-                 f"{h} {h} 0 {h} " + "0"
+    clock_mhz = width*height*rate_hz/1.0e6
+    xrandr_opt = f"--newmode {mode_name} {clock_mhz} " + \
+                 f"{width} {width} 0 {width} " + \
+                 f"{height} {height} 0 {height} " + "0"
     _xrandr_issue_cmd(xrandr_opt)
     _xrandr_issue_cmd(f"--addmode VNC-0 {mode_name}")
 
@@ -72,4 +73,3 @@ if __name__ == '__main__':
         sys.exit(2)
 
     xrandr_set_mode("vncresize_" + sys.argv[1])
-
