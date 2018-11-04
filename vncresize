@@ -1,6 +1,15 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
+# (C) 2018 Christian Friesicke
+
+"""
+vncresize -- resize the server's screen inside an running VNC session.
+
+Usage: vncresize geometry
+  e.g. vncresize 1920x1080
+"""
+
 import sys
 from subprocess import call, Popen, PIPE
 
@@ -64,8 +73,7 @@ def xrandr_set_mode(mode_name):
 if __name__ == '__main__':
 
     if len(sys.argv) != 2:
-        print(f"Usage: {sys.argv[0]} <geometry>")
-        print(f"  e.g. {sys.argv[0]} 1920x1080")
+        print(__doc__)  # module docstring -> usage
         sys.exit(1)
 
     if not xrandr_inside_vnc_session():
