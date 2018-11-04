@@ -6,10 +6,9 @@ from subprocess import call, Popen, PIPE
 
 
 def _xrandr_output_line_startswith(prefix):
-    """Auxiliary function that parses xrandr output for a certain prefix."""
+    """Auxiliary function; parses xrandr output for a certain prefix."""
 
-    pipe = Popen("xrandr", stdout=PIPE).stdout
-    for line in pipe:
+    for line in Popen("xrandr", stdout=PIPE).stdout:
         if line.decode("utf-8").startswith(prefix):
             return True
     return False
