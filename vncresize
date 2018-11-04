@@ -1,0 +1,76 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+from subprocess import Popen, PIPE
+
+def _xrandr_output_line_startswith(prefix):
+    """Auxiliary function that parses xrandr output for a certain prefix."""
+
+    pipe = Popen("xrandr", stdout=PIPE).stdout
+    for line in pipe:
+        if line.decode("utf-8").startswith(prefix):
+            return True
+    return False
+
+
+def _xrandr_issue_cmd(options):
+    """Auxiliary function for calling xrandr and waiting for it to finish."""
+
+    process = Popen(("xrandr "+options).split(" "))
+    (result, error) = process.communicate()
+
+
+def xrandr_inside_vnc_session():
+    """Test for VNC session by looking for an output called VNC-0."""
+
+    return _xrandr_output_line_startswith("VNC-0 connected")
+
+
+def xrandr_has_mode(mode_name):
+    """Check if a certain mode is already available."""
+
+    return _xrandr_output_line_startswith(f"   {mode_name}")
+
+
+def xrandr_add_mode(mode_name):
+    """Add a mode if it is not already available.
+
+       Note: mode_name must follow the convention f"vncresize_{w}x{h}"
+    """
+
+    if xrandr_has_mode(mode_name):
+        return
+
+    w = int(mode_name.split("_")[1].split("x")[0])
+    h = int(mode_name.split("_")[1].split("x")[1])
+    rate_hz = 60
+    clock_mhz = w*h*rate_hz/1.0e6
+    xrandr_opt = f"--newmode {mode_name} {clock_mhz} " + f"{w} {w} 0 {w} " + \
+                 f"{h} {h} 0 {h} " + "0"
+    _xrandr_issue_cmd(xrandr_opt)
+    _xrandr_issue_cmd(f"--addmode VNC-0 {mode_name}")
+
+
+def xrandr_set_mode(mode_name):
+    """Set active mode of output VNC-0."""
+
+    if not xrandr_has_mode(mode_name):
+        xrandr_add_mode(mode_name)
+
+    _xrandr_issue_cmd(f"--output VNC-0 --mode {mode_name}")
+
+
+if __name__ == '__main__':
+
+    if len(sys.argv) != 2:
+        print(f"Usage: {sys.argv[0]} <geometry>")
+        print(f"  e.g. {sys.argv[0]} 1920x1080")
+        sys.exit(1)
+
+    if not xrandr_inside_vnc_session():
+        print("xrandr: output VNC-0 not found. Are you inside a VNC session?")
+        sys.exit(2)
+
+    xrandr_set_mode("vncresize_" + sys.argv[1])
+
