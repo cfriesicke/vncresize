@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import sys
-from subprocess import Popen, PIPE
+from subprocess import call, Popen, PIPE
+
 
 def _xrandr_output_line_startswith(prefix):
     """Auxiliary function that parses xrandr output for a certain prefix."""
@@ -15,10 +16,9 @@ def _xrandr_output_line_startswith(prefix):
 
 
 def _xrandr_issue_cmd(options):
-    """Auxiliary function for calling xrandr and waiting for it to finish."""
+    """Auxiliary function; calls xrandr and waits for it to terminate."""
 
-    process = Popen(("xrandr "+options).split(" "))
-    (result, error) = process.communicate()
+    call(["xrandr"] + options.split(" "))
 
 
 def xrandr_inside_vnc_session():
